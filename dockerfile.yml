@@ -1,0 +1,30 @@
+---
+- name: Build and run Docker image
+  hosts: localhost
+  become: true
+  connection: local
+
+  tasks:
+
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: web_db_server
+        source: build       
+        build:
+          path: "{{ playbook_dir }}"
+          dockerfile: dockerfile 
+
+    - name: Run Docker container
+      community.docker.docker_container:
+        name: web_db_container
+        image: web_db_server
+        state: started
+        ports:
+          - "8080:80"
+
